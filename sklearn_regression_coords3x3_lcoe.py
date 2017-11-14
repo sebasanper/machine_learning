@@ -14,45 +14,45 @@ import pandas as pd
 from statistics import mean, stdev
 import pickle
 
-df = pd.read_csv('coords3x3_full_copy.dat')
-
-with open("pickle_full_data.pickle", 'wb') as out:
-    pickle.dump(df, out)
+df_original = pd.read_csv('coords3x3_full_copy.dat')
+print(len(df_original))
+# with open("pickle_full_data.pickle", 'wb') as out:
+#     pickle.dump(df, out)
 
 # df = pickle.load(open('pickle_full_data.pickle', 'rb'))
 
-df['A'] = df['A'].apply(str)
-df['B'] = df['B'].apply(str)
-df['C'] = df['C'].apply(str)
-df['D'] = df['D'].apply(str)
-df['E'] = df['E'].apply(str)
-df['F'] = df['F'].apply(str)
-df['G'] = df['G'].apply(str)
-df['H'] = df['H'].apply(str)
-df['I'] = df['I'].apply(str)
-df['J'] = df['J'].apply(str)
+df_original['A'] = df_original['A'].apply(str)
+df_original['B'] = df_original['B'].apply(str)
+df_original['C'] = df_original['C'].apply(str)
+df_original['D'] = df_original['D'].apply(str)
+df_original['E'] = df_original['E'].apply(str)
+df_original['F'] = df_original['F'].apply(str)
+df_original['G'] = df_original['G'].apply(str)
+df_original['H'] = df_original['H'].apply(str)
+df_original['I'] = df_original['I'].apply(str)
+df_original['J'] = df_original['J'].apply(str)
 
-bigtest_set = df.sample(frac=0.01, replace=True)
-df = df.sample(frac=0.2, replace=True)
-
-
+df = df_original.sample(frac=0.08, replace=False)
+print(len(df))
+bigtest_set = df_original.sample(frac=0.01, replace=False)
+print(len(df))
 """frac = 0.004 for estimating 'aep'
    frac = 0.001 for estimating 'lcoe'"""
+
 
 x_numeric_cols = ['nbins', 'dir_real', 'dir_artif']
 y_numeric_cols = ['lcoe']
 
 x_num = df[x_numeric_cols].as_matrix()
-print(x_num[883])
+print(x_num[12])
 y_num = df[y_numeric_cols].as_matrix()
 # print(len(x_num))
 x_num_bigtest = bigtest_set[x_numeric_cols].as_matrix()
 y_num_bigtest = bigtest_set[y_numeric_cols].as_matrix()
 
-max_x = np.amax(x_num_bigtest, 0)
-max_y = np.amax(y_num_bigtest, 0)
+# max_y = np.amax(df['lcoe'], 0)
 max_y = 1.0
-# max_x = 1.0
+max_x = np.amax(df_original[x_numeric_cols].as_matrix(), 0)
 
 # print(max_x)
 x_num /= max_x
@@ -68,14 +68,14 @@ cat_bigtest = bigtest_set.drop(x_numeric_cols + ['lcoe', 'aep', 'time', 'power_c
 x_cat = cat.to_dict(orient='records')
 x_cat_bigtest = cat_bigtest.to_dict(orient='records')
 
-# vec = DictVectorizer(sparse=False)
-# vec = vec.fit(x_cat_bigtest)
-# print(vec.feature_names_)
-#
+vec = DictVectorizer(sparse=False)
+vec = vec.fit(x_cat_bigtest)
+print(vec.feature_names_)
+
 # with open("pickle_vectorizer.pickle", 'wb') as out:
 #     pickle.dump(vec, out)
 
-vec = pickle.load(open('pickle_vectorizer.pickle', 'rb'))
+# vec = pickle.load(open('pickle_vectorizer.pickle', 'rb'))
 print(x_cat_bigtest[0])
 vec_x_cat_bigtest = vec.transform(x_cat_bigtest)
 print(vec_x_cat_bigtest[0])
@@ -86,19 +86,18 @@ X = np.hstack((x_num, vec_x_cat))
 print(len(X))
 X_bigtest = np.hstack((x_num_bigtest, vec_x_cat_bigtest))
 y = y_num
-# y_bigtest = bigtest_set[['time']].as_matrix()
-y_bigtest = y_num_bigtest
-y_bigtest = [num[0] for num in y_bigtest]
+# y_bigtest = bigtest_set[['lcoe']].as_matrix()
+y_bigtest1 = y_num_bigtest
+y_bigtest = [num[0] for num in y_bigtest1]
 y = [num[0] for num in y]
 # var_y = stdev(y_bigtest)
 # mean_y = mean(y_bigtest)
-# print(mean_y, var_y)
+# # print(mean_y, var_y)
 # y = [(num - mean_y) / var_y for num in y]
 # y_bigtest = [(num - mean_y) / var_y for num in y_bigtest]
 
-print(X[883], y[883])
+print(X[12], y[12])
 accuracies = []
-# print(X[111])
 
 
 def run():
@@ -125,18 +124,18 @@ def run():
     # nn = RidgeClassifier()
     # nn = GaussianNB()
     # print(len(X_train), len(y_train))
-    # nn.fit(X_train, y_train)
-    # # # print(nn.coefs_)
+    nn.fit(X_train, y_train)
+    # # print(nn.coefs_)
     #
     # with open("regressor_coords3x3_lcoe.pickle", 'wb') as out:
     #     pickle.dump(nn, out)
 
-    nn = pickle.load(open('regressor_coords3x3_lcoe.pickle', 'rb'))
-
+    # nn = pickle.load(open('regressor_coords3x3_lcoe.pickle', 'rb'))
     # print(len(X_test), len(y_test))
+    # print(X_test, y_test)
     accuracy = nn.score(X_test, y_test)
     print('small accuracy:', accuracy)
-    print(X_bigtest[342].reshape(1, -1), y_bigtest[342], nn.predict(X_bigtest[342].reshape(1, -1))[0])
+    print(X_bigtest[12].reshape(1, - 1), y_bigtest[12], nn.predict(X_bigtest[12].reshape(1, -1))[0])
     with open("comparison.dat", 'w') as comp:
         for i in range(len(y_bigtest)):
             comp.write('{} {}\n'.format(y_bigtest[i], nn.predict(X_bigtest[i].reshape(1, -1))[0]))

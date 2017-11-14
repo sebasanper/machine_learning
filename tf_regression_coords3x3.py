@@ -29,12 +29,12 @@ df['H'] = df['H'].apply(str)
 df['I'] = df['I'].apply(str)
 df['J'] = df['J'].apply(str)
 bigtest_set = df.sample(frac=0.01, replace=True)
-df = df.sample(frac=0.05, replace=True)
-print(len(df))
+df_sample = df.sample(frac=0.05, replace=True)
+print(len(df_sample))
 
 numeric_cols = ['nbins', 'dir_real', 'dir_artif']
 
-x_num = df[numeric_cols].as_matrix()
+x_num = df_sample[numeric_cols].as_matrix()
 # print(len(x_num))
 x_num_bigtest = bigtest_set[numeric_cols].as_matrix()
 
@@ -43,7 +43,7 @@ max_x = np.amax(x_num_bigtest, 0)
 x_num = x_num / max_x
 x_num_bigtest = x_num_bigtest / max_x
 
-cat = df.drop(numeric_cols + ['lcoe', 'aep', 'time', 'power_calls', 'ct_calls'], 1)
+cat = df_sample.drop(numeric_cols + ['lcoe', 'aep', 'time', 'power_calls', 'ct_calls'], 1)
 
 # print(len(cat))
 cat_bigtest = bigtest_set.drop(numeric_cols + ['lcoe', 'aep', 'time', 'power_calls', 'ct_calls'], 1)

@@ -49,11 +49,11 @@ def run():
 
     X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.2)
 
-    # nn = MLPRegressor(
-    #     hidden_layer_sizes=(500, 500),  activation='relu', solver='adam', alpha=0.0001, batch_size='auto',
-    #     learning_rate='adaptive', learning_rate_init=0.001, power_t=0.5, max_iter=2000, shuffle=False,
-    #     random_state=80, tol=0.0001, verbose=True, warm_start=False, momentum=0.9, nesterovs_momentum=True,
-    #     early_stopping=False, validation_fraction=0.2, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
+    nn = MLPRegressor(
+        hidden_layer_sizes=(50, 50),  activation='relu', solver='adam', alpha=0.0001, batch_size='auto',
+        learning_rate='adaptive', learning_rate_init=0.001, power_t=0.5, max_iter=2000, shuffle=False,
+        random_state=80, tol=0.0001, verbose=True, warm_start=False, momentum=0.9, nesterovs_momentum=True,
+        early_stopping=False, validation_fraction=0.2, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
 
     # nn = LogisticRegression(n_jobs=-1, solver='liblinear')
     # nn = LinearRegression(n_jobs=-1)
@@ -66,7 +66,7 @@ def run():
     # nn = LinearSVC()
     # nn = SVC(kernel='rbf')
     # nn = RidgeClassifier()
-    nn = GaussianNB()
+    # nn = GaussianNB()
 
     nn.fit(X_train, y_train)
     accuracy = nn.score(X_test, y_test)

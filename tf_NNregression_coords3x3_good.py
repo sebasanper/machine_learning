@@ -22,8 +22,8 @@ df = pd.read_csv('coords3x3_full_copy.dat')
 # df['H'] = df['H'].apply(str)
 # df['I'] = df['I'].apply(str)
 # df['J'] = df['J'].apply(str)
-bigtest_set = df.sample(frac=0.01, replace=True)
-df = df.sample(frac=0.01, replace=True)
+bigtest_set = df.sample(frac=0.001, replace=True)
+df = df.sample(frac=0.001, replace=True)
 
 numeric_cols = ['nbins', 'dir_real', 'dir_artif']
 #
@@ -32,6 +32,7 @@ x_num = df[numeric_cols].as_matrix()
 x_num_bigtest = bigtest_set[numeric_cols].as_matrix()
 #
 max_x = np.amax(x_num_bigtest, 0)
+max_x = 1
 # # print(max_x)
 x_num = x_num / max_x
 x_num_bigtest = x_num_bigtest / max_x
@@ -73,26 +74,26 @@ y_big = bigtest_set[['lcoe']].as_matrix()
 y = np.reshape(y, [y.shape[0], 1])
 y_big = np.reshape(y_big, [y_big.shape[0], 1])
 X_train, X_test, Y_train, Y_test = model_selection.train_test_split(
-    x, y, test_size=0.2, random_state=42)
+    x, y, test_size=0.2, random_state=2)
 
 total_len = X_train.shape[0]
 
 # Parameters
 learning_rate = 0.001
-training_epochs = 500
+training_epochs = 2000
 batch_size = 10
 display_step = 10
 # dropout_rate = 0.9
 # Network Parameters
 n_hidden_1 = 42  # 1st layer number of features
-n_hidden_2 = 310  # 2nd layer number of features
-n_hidden_3 = 310
-n_hidden_4 = 300
+n_hidden_2 = 19  # 2nd layer number of features
+n_hidden_3 = 1
+n_hidden_4 = 1
 n_input = X_train.shape[1]
 n_classes = 1
 
 # tf Graph input
-x = tf.placeholder("float", [None, 42])
+x = tf.placeholder("float", [None, 13])
 y = tf.placeholder("float", [None, 1])
 
 
@@ -164,7 +165,7 @@ def neuralnetwork():
                 _, c, p = sess.run([optimizer, cost, pred], feed_dict={x: batch_x,
                                                                        y: batch_y})
                 # Compute average loss
-                avg_cost += c# / total_batch
+                avg_cost += c # / total_batch
                 losses.append(avg_cost)
             # sample prediction
             label_value = batch_y
@@ -193,7 +194,8 @@ def neuralnetwork():
         plt.figure(1)
         ax = plt.subplot(211)
         ax2 = plt.subplot(212)
-        ax.scatter(y_bigtest, pred, s=1)
+        # print(y_bigtest, predicted_vals)
+        ax.scatter(y_bigtest, predicted_vals, s=1)
         ax2.scatter(range(len(losses)), losses)
         ax.plot([y_bigtest.min(), y_bigtest.max()], [y_bigtest.min(), y_bigtest.max()], 'k--', lw=1)
         ax.set_xlabel('Measured')
